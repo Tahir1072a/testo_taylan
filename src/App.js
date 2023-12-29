@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
 
 function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function GetInfo() {
+      const res = await fetch("http://localhost:5062/WeatherForecast", {
+        method: "Get",
+        headers: {
+          accept: "text/json",
+        },
+      });
+      const data = await res.json();
+      setData([...data]);
+      console.log(data[0]);
+    }
+
+    GetInfo();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {data.map((p, index) => (
+        <div key={index}>
+          <WheatherData wheather={p} />
+          <p>--------------------------------------------</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WheatherData({ wheather }) {
+  const { date, temperatureC, temperatureF, summary } = wheather;
+  return (
+    <div>
+      <p>Date : {date}</p>
+      <p>TemperatureC : {temperatureC}</p>
+      <p>TempEratureF : {temperatureF}</p>
+      <p>summary : {summary}</p>
     </div>
   );
 }
