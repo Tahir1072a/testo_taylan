@@ -2,18 +2,30 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [data, setData] = useState([]);
+  const [isDataCome, setDataCome] = useState(false);
+  const [error, setError] = useState("No-Error");
 
   useEffect(() => {
     async function GetInfo() {
-      const res = await fetch("http://localhost:5062/WeatherForecast", {
-        method: "Get",
-        headers: {
-          accept: "text/json",
-        },
-      });
-      const data = await res.json();
-      setData([...data]);
-      console.log(data[0]);
+      try {
+        const res = await fetch("http://localhost:5062/WeatherForecast", {
+          method: "Get",
+          headers: {
+            accept: "text/json",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Bir hata oldu");
+        }
+
+        const data = await res.json();
+        setData([...data]);
+        setDataCome(true);
+      } catch (err) {
+        setError(err.message);
+        setDataCome(false);
+      }
     }
 
     GetInfo();
@@ -21,12 +33,16 @@ function App() {
 
   return (
     <div>
-      {data.map((p, index) => (
-        <div key={index}>
-          <WheatherData wheather={p} />
-          <p>--------------------------------------------</p>
-        </div>
-      ))}
+      {isDataCome ? (
+        data.map((p, index) => (
+          <div key={index}>
+            <WheatherData wheather={p} />
+            <p>--------------------------------------------</p>
+          </div>
+        ))
+      ) : (
+        <p>{error}</p>
+      )}
     </div>
   );
 }
@@ -37,7 +53,7 @@ function WheatherData({ wheather }) {
     <div>
       <p>Date : {date}</p>
       <p>TemperatureC : {temperatureC}</p>
-      <p>TempEratureF : {temperatureF}</p>
+      <p>TemperatureF : {temperatureF}</p>
       <p>summary : {summary}</p>
     </div>
   );
